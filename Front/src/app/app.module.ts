@@ -8,7 +8,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { ReactiveFormsModule } from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -23,6 +23,7 @@ import { ReactiveFormsModule } from "@angular/forms";
         BrowserModule,
         AppRoutingModule,
         ReactiveFormsModule,
+        FormsModule,
     ],
   providers: [],
   bootstrap: [AppComponent]

@@ -3,6 +3,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 
 // @ts-ignore
 import mergeImages from 'merge-images';
+const hash = require('object-hash');
 
 @Component({
   selector: 'app-engine-page',
@@ -19,9 +20,13 @@ export class EnginePageComponent implements OnInit {
   imgUR3L: any;
   public message: string | undefined;
   index = 1;
-  limit = 100
+  limit = 1001
   layersToMerge:any = []
   randomAsset: any = [];
+  hashArray: any = [];
+  collectionArray:any = []
+  srcIMG:string = ''
+  metadata:any = { attributes: [], src: '' };
 
   constructor() { }
 
@@ -37,34 +42,7 @@ export class EnginePageComponent implements OnInit {
     this.categories.push({name: name, files: []});
   }
 
-  preview(files: any) {
-    if (files.length === 0)
-      return;
 
-    var mimeType = files[0].type;
-    if (mimeType.match(/image\/*/) == null) {
-      this.message = "Only images are supported.";
-      return;
-    }
-    var reader = new FileReader();
-    this.imagePath = files;
-    reader.readAsDataURL(files[0]);
-    reader.onload = (_event) => {
-      this.imgUR1L = reader.result;
-
-
-      reader.readAsDataURL(files[1]);
-      reader.onload = async (_event) => {
-        this.imgUR2L = reader.result;
-
-        this.imgUR3L = await mergeImages([this.imgUR1L, this.imgUR2L]);
-
-        mergeImages([this.imgUR1L, this.imgUR2L])
-          .then((b64: any) => this.imgUR3L = b64);
-
-      }
-    }
-  }
   uploadImage(event: any, index: any) {
     if (event.target.files && event.target.files[0] ) {
       const reader = new FileReader();
@@ -83,7 +61,7 @@ export class EnginePageComponent implements OnInit {
       let assetName = asset.name.substr(0, (asset.name.length - 4))
 
       this.randomAsset.push(
-        {asset, assetName}
+        {asset, assetName, categorieName: categorie.name}
       )
     })
 
@@ -92,14 +70,11 @@ export class EnginePageComponent implements OnInit {
     for (let i = 0; i < this.randomAsset.length; i++) {
       const reader = new FileReader();
       reader.readAsDataURL(this.randomAsset[i].asset)
-
-
-
       reader.onload = async () => {
         this.layersToMerge.push(reader.result);
-
+        this.metadata['attributes'].push({trait_type:this.randomAsset[i].categorieName, value: this.randomAsset[i].assetName})
         if (i == (this.randomAsset.length - 1)) {
-
+          this.metadata['src'] = await mergeImages(this.layersToMerge);
           if(collection) {
             return
           }
@@ -118,11 +93,29 @@ export class EnginePageComponent implements OnInit {
 
  async generateCollection() {
 
-   for (let j = 0; j < this.limit; j++) {
-     this.randomAsset = []
-     await this.generateRandonAsset(true);
-     console.log('a')
-   }
+    console.log('a')
+
+    this.randomAsset = []
+
+    await this.generateRandonAsset(true);
+
+    let hashedAsset = hash(this.randomAsset);
+
+    let findDuplicate = this.hashArray.find((asset: any) => asset == hashedAsset);
+
+    if(findDuplicate) {
+      await this.generateCollection()
+    } else {
+      this.collectionArray.push(this.randomAsset);
+      this.index++
+    }
+
+    if (this.index > this.collectionArray) {
+      console.log(this.collectionArray)
+      return
+    } else {
+      await this.generateCollection()
+    }
 
   }
 

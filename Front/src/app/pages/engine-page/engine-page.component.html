@@ -8,7 +8,7 @@
 
         <div class="form-group">
           <label for="exampleInputEmail1">Collection length</label>
-          <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="collectionLength" [value]="limit" placeholder="100">
+          <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="collectionLength" [(ngModel)]="limit"  placeholder="100">
         </div>
 
         <img style="margin-right: 2rem;width: 400px;height: 400px" class="responsive-img" [src]="imgUR3L" *ngIf="imgUR3L" >
