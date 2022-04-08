@@ -1,0 +1,35 @@
+
+
+
+  <div class="row input-field">
+    <div class="col">
+      <div class="row input-field ms-lg-0">
+
+
+        <div class="form-group">
+          <label for="exampleInputEmail1">Collection length</label>
+          <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="collectionLength" [value]="limit" placeholder="100">
+        </div>
+
+        <img style="margin-right: 2rem;width: 400px;height: 400px" class="responsive-img" [src]="imgUR3L" *ngIf="imgUR3L" >
+      </div>
+      <button class="btn btn-primary" (click)="addCategorie(categorieName.value)">add categorie</button>
+
+      <input type="text" class="input-field" #categorieName placeholder="layer Name">
+
+      <div class="row input-field" *ngFor="let categorie of categories; let i = index">
+        <div class="col">
+          <div class="file-field input-field">
+            <div class="btn black white-text">
+              {{categorie.name}}
+              <input #file type="file" multiple accept=".png" name="file" (change)="uploadImage($event, i)">
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" (click)="generateRandonAsset(false)">generate RandonAsset</button>
+      <button class="btn btn-primary" (click)="generateCollection()">generate Collection</button>
+      <button class="btn btn-primary" (click)="CleanCategories()">clean Categories</button>
+    </div>
+  </div>
+

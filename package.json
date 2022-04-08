@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@types/node": "^17.0.23",
-    "kinetic": "^5.2.0",
-    "merge-images": "^2.0.0"
-  }
-}
