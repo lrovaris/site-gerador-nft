@@ -53,6 +53,14 @@ export class EnginePageComponent implements OnInit {
     }
   }
 
+  async getSrcImageUrl() {
+    this.metadata['src'] = await mergeImages(this.layersToMerge);
+  }
+
+  async setPreviewImgUrl() {
+    this.imgUR3L = await mergeImages(this.layersToMerge);
+  }
+
   generateRandonAsset(collection:boolean) {
 
     this.categories.forEach(categorie => {
@@ -61,7 +69,7 @@ export class EnginePageComponent implements OnInit {
       let assetName = asset.name.substr(0, (asset.name.length - 4))
 
       this.randomAsset.push(
-        {asset, assetName, categorieName: categorie.name}
+        {asset, assetName, categorieName: categorie.name, src:''}
       )
     })
 
@@ -74,14 +82,10 @@ export class EnginePageComponent implements OnInit {
         this.layersToMerge.push(reader.result);
         this.metadata['attributes'].push({trait_type:this.randomAsset[i].categorieName, value: this.randomAsset[i].assetName})
         if (i == (this.randomAsset.length - 1)) {
-          this.metadata['src'] = await mergeImages(this.layersToMerge);
-          if(collection) {
-            return
-          }
 
-          setTimeout( async()=> {
-            this.imgUR3L = await mergeImages(this.layersToMerge);
-          },500)
+         await Promise.all(
+            [this.getSrcImageUrl(), this.setPreviewImgUrl()]
+          )
         }
       };
     }
@@ -110,10 +114,12 @@ export class EnginePageComponent implements OnInit {
       this.index++
     }
 
-    if (this.index > this.collectionArray) {
+    if (this.index > this.limit) {
       console.log(this.collectionArray)
+      this.index = 1
       return
     } else {
+      console.log(this.index);
       await this.generateCollection()
     }
 
