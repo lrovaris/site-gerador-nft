@@ -1,20 +1,15 @@
 
-
-
   <div class="row input-field">
     <div class="col">
       <div class="row input-field ms-lg-0">
-
-
         <div class="form-group">
           <label for="exampleInputEmail1">Collection length</label>
           <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="collectionLength" [(ngModel)]="limit"  placeholder="100">
         </div>
-
-        <img style="margin-right: 2rem;width: 400px;height: 400px" class="responsive-img" [src]="imgUR3L" *ngIf="imgUR3L" >
+        <img style="margin-right: 2rem;width: 400px;height: 400px" class="responsive-img" [src]="img3URL" *ngIf="img3URL" >
       </div>
-      <button class="btn btn-primary" (click)="addCategorie(categorieName.value)">add categorie</button>
 
+      <button class="btn btn-primary" (click)="addCategorie(categorieName.value)">add categorie</button>
       <input type="text" class="input-field" #categorieName placeholder="layer Name">
 
       <div class="row input-field" *ngFor="let categorie of categories; let i = index">
@@ -27,9 +22,28 @@
           </div>
         </div>
       </div>
-      <button class="btn btn-primary" (click)="generateRandonAsset(false)">generate RandonAsset</button>
+
+      <button class="btn btn-primary" (click)="renderAssetById(getRandomInt(0, collectionArray.length))">randon Preview</button>
       <button class="btn btn-primary" (click)="generateCollection()">generate Collection</button>
-      <button class="btn btn-primary" (click)="CleanCategories()">clean Categories</button>
+      <button class="btn btn-primary" (click)="cleanCategories()">clean Categories</button>
+      <input type="text" class="input-field" #projectName placeholder="Project Name">
+      <input type="text" class="input-field" #description placeholder="Description">
     </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <small style="margin-left: 4px">metadata</small>
+      <select style="margin: 1em" #metadata name="select">
+        <option value="eth">OpenSea (ETH)</option>
+        <option value="ada">Cardano</option>
+      </select>
+
+
+
+      <button class="btn btn-primary" (click)="generateMetadata(metadata.value, projectName.value, description.value)">Generate Metadata</button>
+    </div>
+  </div>
+  <div *ngIf="switch" class="row">
+    <img *ngFor="let asset of collectionArray" style="margin-right: 2rem;width: 400px;height: 400px" class="responsive-img" [src]="asset.src"  >
   </div>
 
