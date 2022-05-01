@@ -1,8 +1,9 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, } from '@angular/core';
 
 // @ts-ignore
 import mergeImages from 'merge-images';
 const hash = require('object-hash');
+import * as jsZIp from 'jszip'
 
 @Component({
   selector: 'app-engine-page',
@@ -24,11 +25,11 @@ export class EnginePageComponent implements OnInit {
   randomAsset: any = {};
   hashArray: any = [];
   collectionArray:any = []
-  srcIMG:string = ''
   metadata:any = { };
   metadataArray:any  = [];
   characterCount: number = 64;
   switch = false
+  collectionName:string = '';
 
   constructor() { }
 
@@ -54,47 +55,14 @@ export class EnginePageComponent implements OnInit {
         // should return an object with one index from each category  {categoryName:index}
   generateRandonAsset() {
 
-    let randonAsset:any = {};
+    let randonAsset:any = {attributes:[]};
 
     this.categories.forEach( category => {
-      randonAsset[category.name] = this.getRandomInt(0, category.files.length);
+      randonAsset.attributes.push({'trait_type':category.name, 'value': this.getRandomInt(0, category.files.length)});
     })
-
 
     return randonAsset;
 
-
-
- /*
-     this.randomAsset = []
-
-    this.categories.forEach(categorie => {
-      let asset = categorie.files[this.getRandomInt(0, categorie.files.length)]
-      let assetName = asset.name.substring(0, (asset.name.length - 4))
-
-      const reader = new FileReader();
-      reader.readAsDataURL(asset)
-      reader.onload = async () => {
-        this.randomAsset.push(
-          {asset: reader.result, assetName, categorieName: categorie.name}
-        )
-      };
-
-    })
-
-  for (const layer of this.randomAsset) {
-    const i1: number = this.randomAsset.indexOf(layer);
-    this.layersToMerge.push(layer.asset)
-    console.log(i1)
-    console.log(this.randomAsset.length-1)
-    if (i1 == this.randomAsset.length - 1) {
-      this.img3URL = await mergeImages(this.layersToMerge)
-      this.metadata.src = this.img3URL;
-      console.log('teste')
-      return this.randomAsset;
-    }
-  }
- */
 }
 
   // well, if you need explanation for this, you shouldn't be reading it.
@@ -124,11 +92,10 @@ export class EnginePageComponent implements OnInit {
         this.index += 1;
 
       }
+
+
+
     }
-
-    console.log(this.collectionArray)
-
-
   }
 
   ngOnInit(): void {
@@ -186,15 +153,17 @@ export class EnginePageComponent implements OnInit {
     let oldNumber = 0
 
     this.categories.forEach((layer:any) => {
-      oldNumber = asset[layer.name]
-      asset[layer.name] = layer.files[asset[layer.name]].name
+
+      oldNumber = asset.attributes[this.categories.indexOf(layer, 0)].value
+
+      asset.attributes[this.categories.indexOf(layer, 0)].value = layer.files[oldNumber].name
       const reader = new FileReader();
       reader.readAsDataURL(layer.files[oldNumber])
 
       reader.onload = async () => {
         layersToMerge.push(reader.result)
         if(layersToMerge.length == this.categories.length) {
-          asset['src'] = await mergeImages(layersToMerge);
+          asset['image'] = await mergeImages(layersToMerge);
           return new Promise(resolve => setTimeout(() => resolve(asset), 0))
         }
       };
@@ -233,19 +202,27 @@ export class EnginePageComponent implements OnInit {
             ProjectName: projectName,
             Description: description,
             type: 'image/png',
-            src: ''
+            image: '',
+            attributes:[]
           }
 
           this.metadataArray.push(this.metadata)
 
         })
 
-        console.log(promisesArray)
+
 
 
         Promise.all(promisesArray).then(() => {
-          console.log('collection array??????', this.collectionArray)
+
           this.switch = true;
+
+
+
+          setTimeout( ()=> {
+            this.downloadCollection()
+          },1000)
+
         })
 
         break
@@ -253,6 +230,66 @@ export class EnginePageComponent implements OnInit {
 
         break
     }
+  }
+
+
+
+
+  // TODO download asset by id
+  downloadAssetById() {}
+
+  downloadCollection() {
+    let zip = new jsZIp()
+
+
+
+    let i = 0;
+    this.collectionArray.forEach((nft:any) => {
+        this.saveTemplateAsFile(`${i}.json`, nft)
+        i++
+    })
+    }
+
+
+  saveTemplateAsFile = (filename: string, dataObjToWrite: any) => {
+    const blob = new Blob([JSON.stringify(dataObjToWrite)], { type: "text/json" });
+    const link = document.createElement("a");
+
+    link.download = filename;
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset['downloadurl'] = ["text/json", link.download, link.href].join(":");
+
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+    link.remove()
+  };
+
+   b64toBlob = (b64Data: string, contentType='', sliceSize=512) => {
+
+     b64Data = b64Data.substring(22,b64Data.length);
+
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
   }
 
 }
