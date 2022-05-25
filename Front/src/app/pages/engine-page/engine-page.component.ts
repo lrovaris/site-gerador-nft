@@ -1,4 +1,4 @@
-import {Component, OnInit, } from '@angular/core';
+import {Component, Inject, OnInit,} from '@angular/core';
 
 // @ts-ignore
 import mergeImages from 'merge-images';
@@ -11,6 +11,11 @@ import * as jsZIp from 'jszip'
   styleUrls: ['./engine-page.component.css']
 })
 export class EnginePageComponent implements OnInit {
+
+  public hash: string = '';
+
+  // Inject the ipfs injection token
+
 
   categories: any[] = [];
 
@@ -31,7 +36,7 @@ export class EnginePageComponent implements OnInit {
   switch = false
   collectionName:string = '';
 
-  constructor() { }
+  constructor() {}
 
   getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
